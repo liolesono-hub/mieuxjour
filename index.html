@@ -1,43 +1,50 @@
 <!doctype html>
 <html lang="fr">
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MieuxJour — V3.5 Responsive PWA</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#6CC5B6">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MieuxJour — V3.4 (Journal avec descriptions + totaux, disques énergie/sommeil +/–)</title>
 <style>
 :root{
   --bg:#fff; --text:#1b1b1b; --muted:#6b6b6b;
   --accent-blue:#6CC5B6; --accent-mint:#8FE3B6; --accent-salmon:#FFB3A1;
   --accent: var(--accent-blue);
   --border:#e9f4f1; --card:#fff;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial}
-body{margin:0;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+html,body{height:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);display:flex;min-height:100svh;overflow:hidden}
+
+/* ===== desktop layout ===== */
 aside{width:220px;border-right:1px solid var(--border);padding:16px;background:#fbfbfb;display:flex;flex-direction:column}
 .brand{font-weight:700;color:var(--muted);margin-bottom:12px}
 nav button{width:100%;text-align:left;border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
 nav button.active{background:var(--accent);color:#fff;border-color:transparent}
+
 main{flex:1;display:flex;flex-direction:column;min-width:0}
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
 .h-left h1{margin:0;font-size:18px}
 .h-right button{border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;margin-left:8px}
 
 .view{padding:16px;overflow:auto;flex:1}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,190px);gap:14px;min-width:640px}
+.grid{
+  display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:190px;gap:14px;min-width:640px
+}
 .card{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:10px;display:flex;flex-direction:column;min-height:190px}
 .cardHeader{display:flex;justify-content:space-between;align-items:center}
 .date{font-weight:700}
 .datePastel{color:var(--accent);font-weight:600}
-.icons{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:130px;overflow:auto}
-.row{display:flex;align-items:center;gap:10px;justify-content:flex-start}
+.icons{margin-top:8px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.row{display:flex;align-items:center;gap:10px}
 .left{display:flex;align-items:center;gap:10px}
-.ico{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer}
+.ico{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;flex:0 0 28px}
 .value{font-size:13px}
 
 /* profil */
@@ -56,8 +63,10 @@ textarea{min-height:60px;resize:vertical}
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:50}
 .modal.show{display:flex}
-.m-inner{background:#fff;border:1px solid var(--border);border-radius:12px;min-width:320px;max-width:600px;
-         padding:16px;position:relative;max-height:80vh;display:flex;flex-direction:column}
+.m-inner{
+  background:#fff;border:1px solid var(--border);border-radius:12px;min-width:320px;max-width:600px;
+  padding:16px;max-height:80vh;display:flex;flex-direction:column
+}
 .m-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px 0}
 .m-title{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
 .m-date{color:var(--accent);font-weight:600}
@@ -68,14 +77,13 @@ button{cursor:pointer}
 .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
 .btn.danger{background:#ffeef0;border-color:#ffd1d6}
 
-/* disques 0..N, pas 0.5 */
+/* disques */
 .discBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .disc{width:20px;height:20px;border-radius:999px;border:1px solid #ccc;background:#f2f2f2;position:relative;overflow:hidden;cursor:pointer}
 .disc .half{position:absolute;top:0;bottom:0;width:50%}
 .disc .left{left:0;border-right:1px solid rgba(0,0,0,.04)}
 .disc .right{right:0;border-left:1px solid rgba(0,0,0,.04)}
 .disc .fill{position:absolute;top:0;bottom:0;background:var(--accent);left:0;width:0%}
-
 .mealRow{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 .macroLabel{font-size:12px;color:var(--muted);min-width:70px;text-align:center}
 .valueUnder{font-size:12px;color:var(--muted);margin-left:78px;margin-top:2px}
@@ -84,15 +92,11 @@ button{cursor:pointer}
 details{border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:10px;background:#fff}
 summary{font-weight:700;cursor:pointer;outline:none}
 
-/* small +/- controls */
-.inlineControls{display:flex;align-items:center;gap:8px;margin-top:6px}
-.ctrlBtn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer}
-
 /* charts */
 .charts{display:grid;grid-template-columns:1fr;gap:16px;max-width:900px}
 canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px;background:#fff}
 
-/* misc */
+/* errors + a11y */
 .sr-only{
   position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0,0,0,0);white-space:nowrap;border:0;
@@ -102,9 +106,46 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
 }
 .totals{border-top:1px dashed #e6e6e6;padding-top:8px;margin-top:8px;font-size:13px;display:grid;gap:4px}
 .totals strong{font-weight:700}
+
+/* ===== mobile responsive ===== */
+@media (max-width: 900px){
+  .grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:180px;min-width:0}
+}
+@media (max-width: 600px){
+  body{overflow:hidden}
+  aside{display:none}                /* on cache la sidebar */
+  .header{position:sticky;top:0;background:#fff;z-index:3;padding-top:calc(8px + var(--safe-top));}
+  .h-left h1{font-size:16px}
+  .h-right button{padding:8px 12px}
+  .grid{grid-template-columns:1fr;grid-auto-rows:160px;gap:12px}
+  .card{min-height:150px}
+  .ico{width:36px;height:36px;font-size:16px;border-radius:10px}
+  .value{font-size:14px}
+  .formRow{grid-template-columns:1fr 1fr;gap:8px}
+  .photoGrid img{height:90px}
+
+  /* modal plein écran mobile */
+  .m-inner{
+    width:100vw;height:100svh;max-width:none;max-height:none;border-radius:0;
+    padding:16px 16px calc(16px + 56px + var(--safe-bottom)); /* place pour la barre bas */
+  }
+  #mBody{flex:1}
+
+  /* nav bas mobile */
+  .mobileBar{
+    position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);
+    padding:8px calc(8px + env(safe-area-inset-left,0px)) calc(8px + var(--safe-bottom)) calc(8px + env(safe-area-inset-right,0px));
+    display:flex;gap:8px;justify-content:space-around;z-index:5
+  }
+  .mBtn{flex:1;border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 8px;font-size:14px}
+  .mBtn.active{background:var(--accent);color:#fff;border-color:transparent}
+  .view{padding-bottom:calc(16px + 56px + var(--safe-bottom))} /* éviter que le contenu passe sous la barre */
+  canvas{height:180px}
+}
 </style>
 </head>
 <body>
+  <!-- Sidebar desktop -->
   <aside>
     <div class="brand">MieuxJour</div>
     <nav>
@@ -119,7 +160,7 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
     <div class="header">
       <div class="h-left">
         <h1 id="title">Calendrier</h1>
-        <div style="font-size:12px;color:var(--muted)">6 jours visibles — logos à gauche, valeur à droite</div>
+        <div style="font-size:12px;color:var(--muted)">Vue responsive — logos à gauche, valeur à droite</div>
       </div>
       <div class="h-right">
         <button id="prev">◀</button>
@@ -190,15 +231,22 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
       </div>
     </section>
 
-    <!-- STATS (placeholder) -->
+    <!-- STATS -->
     <section id="statsView" class="view" style="display:none">
       <h2 class="sr-only">Stats</h2>
       <div class="cardBlock">
         <h2>Stats (aperçu)</h2>
-        <p style="color:var(--muted)">Ici on pourra détailler d’autres courbes. Pour l’instant, priorité au calendrier + popups.</p>
+        <p style="color:var(--muted)">On étoffera si besoin. Le responsive est prioritaire.</p>
       </div>
     </section>
   </main>
+
+  <!-- Barre mobile -->
+  <div class="mobileBar" id="mobileBar" style="display:none">
+    <button class="mBtn active" id="mCal">Calendrier</button>
+    <button class="mBtn" id="mProfile">Profil</button>
+    <button class="mBtn" id="mStats">Stats</button>
+  </div>
 
   <!-- MODAL -->
   <div id="modal" class="modal">
@@ -216,217 +264,152 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
   </div>
 
 <script>
-/* ====== stockage robuste (fallback mémoire) ====== */
+/* ===== stockage robuste ===== */
 const _mem = { PF_KEY:null, DAY_KEY:null };
 function _safeGetItem(k){ try{ return localStorage.getItem(k); }catch(e){ return _mem[k]||null; } }
-function _safeSetItem(k,v){ try{ localStorage.setItem(k,v); }catch(e){ _mem[k]=v; } }
+function _safeSetItem(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ _mem[k]=v; } }
 
-const PF_KEY = 'userProfileV3';
-const DAY_KEY = 'dayEntriesV3';
-
-function loadProfile(){
-  let raw=_safeGetItem(PF_KEY);
-  try{ const p = JSON.parse(raw||'{}'); return Object.assign({name:'',age:0,weight:0,weightTarget:0,tProt:0,tVeg:0,tCarb:0,tFat:0,theme:'blue',photos:[]}, p); }
-  catch(e){ return {name:'',age:0,weight:0,weightTarget:0,tProt:0,tVeg:0,tCarb:0,tFat:0,theme:'blue',photos:[]}; }
-}
+const PF_KEY='userProfileV3'; const DAY_KEY='dayEntriesV3';
+function loadProfile(){ let raw=_safeGetItem(PF_KEY);
+  try{ const p=JSON.parse(raw||'{}'); return Object.assign({name:'',age:0,weight:0,weightTarget:0,tProt:0,tVeg:0,tCarb:0,tFat:0,theme:'blue',photos:[]}, p);}
+  catch(e){ return {name:'',age:0,weight:0,weightTarget:0,tProt:0,tVeg:0,tCarb:0,tFat:0,theme:'blue',photos:[]}; } }
 function saveProfile(p){ _safeSetItem(PF_KEY, JSON.stringify(p)); applyTheme(p.theme); }
-
-function loadDaysObj(){
-  let raw=_safeGetItem(DAY_KEY);
-  try{ return JSON.parse(raw||'{}'); } catch(e){ return {}; }
-}
+function loadDaysObj(){ let raw=_safeGetItem(DAY_KEY); try{ return JSON.parse(raw||'{}'); }catch(e){ return {}; } }
 function saveDaysObj(o){ _safeSetItem(DAY_KEY, JSON.stringify(o)); }
-function upsertEntry(dateKey, entry){ const all=loadDaysObj(); all[dateKey]=entry; saveDaysObj(all); }
+function upsertEntry(k, e){ const all=loadDaysObj(); all[k]=e; saveDaysObj(all); }
 
-/* ====== thème ====== */
+/* ===== thème ===== */
 function applyTheme(theme){
-  let acc = getComputedStyle(document.documentElement).getPropertyValue('--accent-blue').trim();
-  if(theme==='mint') acc = getComputedStyle(document.documentElement).getPropertyValue('--accent-mint').trim();
-  if(theme==='salmon') acc = getComputedStyle(document.documentElement).getPropertyValue('--accent-salmon').trim();
+  let acc=getComputedStyle(document.documentElement).getPropertyValue('--accent-blue').trim();
+  if(theme==='mint') acc=getComputedStyle(document.documentElement).getPropertyValue('--accent-mint').trim();
+  if(theme==='salmon') acc=getComputedStyle(document.documentElement).getPropertyValue('--accent-salmon').trim();
   document.documentElement.style.setProperty('--accent', acc);
   document.documentElement.style.setProperty('--border', '#e9f4f1');
 }
 
-/* ====== helpers ====== */
-const PAGE_SIZE = 6;
-let pageIndex = 0;
-const calView = document.getElementById('calView');
-const grid = document.getElementById('grid');
-const calError = document.getElementById('calError');
-
+/* ===== helpers ===== */
+const PAGE_SIZE=6; let pageIndex=0;
+const calView=document.getElementById('calView'); const grid=document.getElementById('grid'); const calError=document.getElementById('calError');
 function dateKeyFromDate(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
-function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
-
-function getEntry(obj, dateKey){
-  if(!obj[dateKey]){
-    obj[dateKey] = {
-      date: dateKey,
-      steps: 0,
-      water: 0,
-      energy: 0,
-      sleep: { bedTime:'', wakeTime:'', duration:0, quality:0, dreams:[] },
-      weight: null,
-      priorities: ['','',''],
-      food: {
-        breakfast: { desc:'', prot:0, veg:0, carb:0, fat:0 },
-        lunch:     { desc:'', prot:0, veg:0, carb:0, fat:0 },
-        dinner:    { desc:'', prot:0, veg:0, carb:0, fat:0 },
-        snacks:    { desc:'', prot:0, veg:0, carb:0, fat:0 }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function getEntry(obj, key){
+  if(!obj[key]){
+    obj[key]={date:key,steps:0,water:0,energy:0,
+      sleep:{bedTime:'',wakeTime:'',duration:0,quality:0,dreams:[]},
+      weight:null,priorities:['','',''],
+      food:{
+        breakfast:{desc:'',prot:0,veg:0,carb:0,fat:0},
+        lunch:{desc:'',prot:0,veg:0,carb:0,fat:0},
+        dinner:{desc:'',prot:0,veg:0,carb:0,fat:0},
+        snacks:{desc:'',prot:0,veg:0,carb:0,fat:0}
       },
       photos:[]
     };
-  }
-  return obj[dateKey];
+  } return obj[key];
 }
+function preserveScroll(fn){ const y=calView.scrollTop; fn(); calView.scrollTop=y; }
 
-/* ====== anti-saut ====== */
-function preserveScroll(fn){
-  const y = calView.scrollTop;
-  fn();
-  calView.scrollTop = y;
-}
-
-/* ====== rendu calendrier ====== */
+/* ===== rendu calendrier ===== */
 function renderPage(){
   try{
-    grid.innerHTML = '';
-    const today = new Date();
-    const startIdx = pageIndex*PAGE_SIZE;
-    const days = [...Array(PAGE_SIZE)].map((_,i)=> addDays(today, i+startIdx));
-    const daysObj = loadDaysObj();
-
+    grid.innerHTML=''; const today=new Date(); const startIdx=pageIndex*PAGE_SIZE;
+    const days=[...Array(PAGE_SIZE)].map((_,i)=> addDays(today, i+startIdx)); const daysObj=loadDaysObj();
     days.forEach(d=>{
-      const key = dateKeyFromDate(d);
-      const entry = getEntry(daysObj, key);
+      const key=dateKeyFromDate(d); const entry=getEntry(daysObj,key);
+      const card=document.createElement('div'); card.className='card';
+      const head=document.createElement('div'); head.className='cardHeader';
+      const lbl=document.createElement('div'); lbl.className='date';
+      const ds=d.toLocaleDateString('fr-CA',{year:'numeric',month:'2-digit',day:'2-digit'}); lbl.textContent=ds;
+      const pastel=document.createElement('div'); pastel.className='datePastel'; pastel.textContent=ds;
+      head.append(lbl,pastel); card.appendChild(head);
 
-      const card = document.createElement('div'); card.className='card';
-      const head = document.createElement('div'); head.className='cardHeader';
-      const lblDate = document.createElement('div'); lblDate.className='date';
-      const ds = d.toLocaleDateString('fr-CA',{year:'numeric',month:'2-digit',day:'2-digit'});
-      lblDate.textContent = ds;
-      const pastel = document.createElement('div'); pastel.className='datePastel'; pastel.textContent = ds;
-      head.appendChild(lblDate); head.appendChild(pastel);
-      card.appendChild(head);
-
-      const icons = document.createElement('div'); icons.className='icons';
-      function addRow(emoji, title, getText, onClick){
+      const icons=document.createElement('div'); icons.className='icons';
+      function addRow(emoji,title,getText,onClick){
         const row=document.createElement('div'); row.className='row';
         const left=document.createElement('div'); left.className='left';
         const ico=document.createElement('div'); ico.className='ico'; ico.textContent=emoji; ico.title=title; ico.addEventListener('click', onClick);
-        const value=document.createElement('div'); value.className='value';
-        value.textContent = getText() || '';
-        left.append(ico, value);
-        row.appendChild(left);
-        icons.appendChild(row);
+        const value=document.createElement('div'); value.className='value'; value.textContent=getText()||'';
+        left.append(ico,value); row.append(left); icons.append(row);
       }
-
-      addRow('🥾','Pas',      ()=> (entry.steps>0)? `${entry.steps} pas` : '', ()=> openModal('steps', key));
-      addRow('🍽','Journal',  ()=> '', ()=> openModal('food', key));
-      addRow('🛌','Sommeil',  ()=> (entry.sleep?.duration>0)? `${entry.sleep.duration} h` : '', ()=> openModal('sleep', key));
-      addRow('⚡','Énergie',  ()=> (entry.energy>0)? `${entry.energy}/10` : '', ()=> openModal('energy', key));
-      addRow('⚖️','Poids',    ()=> (entry.weight!=null)? `${entry.weight.toFixed(1)} kg` : '', ()=> openModal('weight', key));
-      addRow('📷','Photo',    ()=> (entry.photos?.length||0)? `${entry.photos.length} photo(s)` : '', ()=> openModal('photo', key));
-
-      card.appendChild(icons);
-      grid.appendChild(card);
+      addRow('🥾','Pas',      ()=> entry.steps>0? `${entry.steps} pas`: '', ()=> openModal('steps',key));
+      addRow('🍽','Journal',  ()=> '', ()=> openModal('food',key));
+      addRow('🛌','Sommeil',  ()=> entry.sleep?.duration>0? `${entry.sleep.duration} h` : '', ()=> openModal('sleep',key));
+      addRow('⚡','Énergie',  ()=> entry.energy>0? `${entry.energy}/10` : '', ()=> openModal('energy',key));
+      addRow('⚖️','Poids',    ()=> entry.weight!=null? `${entry.weight.toFixed(1)} kg` : '', ()=> openModal('weight',key));
+      addRow('📷','Photo',    ()=> (entry.photos?.length||0)? `${entry.photos.length} photo(s)` : '', ()=> openModal('photo',key));
+      card.append(icons); grid.append(card);
     });
-
     calError.style.display='none';
-  }catch(err){
-    calError.textContent='Erreur de rendu calendrier : '+err.message;
-    calError.style.display='block';
-  }
+  }catch(err){ calError.textContent='Erreur de rendu calendrier : '+err.message; calError.style.display='block'; }
 }
 
-/* ====== disques (génériques) ====== */
-function buildDiscs(current, count){
-  const wrap=document.createElement('div'); wrap.className='discBar';
-  const discs=[];
+/* ===== disques ===== */
+function buildDiscs(current,count){
+  const wrap=document.createElement('div'); wrap.className='discBar'; const discs=[];
   for(let i=0;i<count;i++){
     const d=document.createElement('div'); d.className='disc';
     const left=document.createElement('div'); left.className='half left';
     const right=document.createElement('div'); right.className='half right';
     const fill=document.createElement('div'); fill.className='fill';
     d.append(fill,left,right);
-    function paint(val){
-      let part=0;
-      if(val>=i+1) part=1;
-      else if(val>i) part=(val-i);
-      fill.style.width=(Math.max(0,Math.min(1,part))*100)+'%';
-    }
+    function paint(val){ let part=0; if(val>=i+1) part=1; else if(val>i) part=(val-i); fill.style.width=(Math.max(0,Math.min(1,part))*100)+'%'; }
     paint(current||0);
-    left.addEventListener('click', ()=>{ wrap.value = Math.max(0, Math.min(count, i+0.5)); updateAll(); });
-    right.addEventListener('click', ()=>{ wrap.value = Math.max(0, Math.min(count, i+1)); updateAll(); });
-    discs.push({paint});
-    wrap.appendChild(d);
+    left.addEventListener('click', ()=>{ wrap.value=Math.max(0,Math.min(count,i+0.5)); updateAll(); });
+    right.addEventListener('click', ()=>{ wrap.value=Math.max(0,Math.min(count,i+1)); updateAll(); });
+    discs.push({paint}); wrap.append(d);
   }
   function updateAll(){ discs.forEach(({paint})=> paint(wrap.value||0)); if(typeof wrap.onchange==='function') wrap.onchange(wrap.value); }
-  wrap.value=current||0; wrap.update=updateAll;
-  return wrap;
+  wrap.value=current||0; wrap.update=updateAll; return wrap;
 }
 
-/* ====== MODAL ====== */
-const modal = document.getElementById('modal');
-const mTitle = document.getElementById('mTitle');
-const mDate = document.getElementById('mDate');
-const mBody = document.getElementById('mBody');
-const mSave = document.getElementById('mSave');
-const mCancel = document.getElementById('mCancel');
+/* ===== modal ===== */
+const modal=document.getElementById('modal');
+const mTitle=document.getElementById('mTitle'); const mDate=document.getElementById('mDate');
+const mBody=document.getElementById('mBody'); const mSave=document.getElementById('mSave'); const mCancel=document.getElementById('mCancel');
 
-function openModal(param, dateKey){
+function openModal(param,dateKey){
   try{
-    const daysObj = loadDaysObj();
-    const entry = getEntry(daysObj, dateKey);
-    mBody.innerHTML = '';
-    modal.classList.add('show');
-    mDate.textContent = dateKey;
-    const titles = {
-      steps:'👟 <span>Nombre de pas</span>',
-      energy:'⚡ <span>Énergie quotidienne</span>',
-      weight:'⚖️ <span>Poids</span>',
-      sleep:'🛌 <span>Sommeil</span>',
-      photo:'📷 <span>Photo progression</span>',
-      food:'🍽 <span>Journal alimentaire</span>'
-    };
-    mTitle.innerHTML = titles[param] || 'Paramètre';
+    const daysObj=loadDaysObj(); const entry=getEntry(daysObj,dateKey);
+    mBody.innerHTML=''; modal.classList.add('show'); mDate.textContent=dateKey;
+    const titles={ steps:'👟 <span>Nombre de pas</span>', energy:'⚡ <span>Énergie quotidienne</span>', weight:'⚖️ <span>Poids</span>', sleep:'🛌 <span>Sommeil</span>', photo:'📷 <span>Photo progression</span>', food:'🍽 <span>Journal alimentaire</span>' };
+    mTitle.innerHTML=titles[param]||'Paramètre';
 
     if(param==='steps'){
-      const inp = document.createElement('input'); inp.type='number'; inp.min=0; inp.value=entry.steps||0;
+      const inp=document.createElement('input'); inp.type='number'; inp.min=0; inp.value=entry.steps||0;
       mBody.append('Entrez le nombre de pas : ', inp);
-      mSave.onclick = ()=>{ entry.steps = parseInt(inp.value)||0; upsertEntry(dateKey, entry); closeAndRefresh(); };
+      mSave.onclick=()=>{ entry.steps=parseInt(inp.value)||0; upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
     else if(param==='energy'){
       const label=document.createElement('div'); label.textContent='Énergie quotidienne';
-      const discs=buildDiscs(entry.energy||0, 10);
+      const discs=buildDiscs(entry.energy||0,10);
       const ctrl=document.createElement('div'); ctrl.className='inlineControls';
-      const minus=document.createElement('button'); minus.className='ctrlBtn'; minus.textContent='–';
-      const plus=document.createElement('button'); plus.className='ctrlBtn'; plus.textContent='+';
+      const minus=document.createElement('button'); minus.className='btn'; minus.textContent='–';
+      const plus=document.createElement('button'); plus.className='btn'; plus.textContent='+';
       minus.onclick=()=>{ discs.value=Math.max(0,(discs.value||0)-0.5); discs.update(); entry.energy=discs.value; };
       plus.onclick =()=>{ discs.value=Math.min(10,(discs.value||0)+0.5); discs.update(); entry.energy=discs.value; };
-      discs.onchange=(v)=>{ entry.energy=v; };
-      ctrl.append(minus,plus);
-      mBody.append(label,ctrl,discs);
-      mSave.onclick = ()=>{ upsertEntry(dateKey, entry); closeAndRefresh(); };
+      discs.onchange=(v)=> entry.energy=v;
+      ctrl.append(minus,plus); mBody.append(label,ctrl,discs);
+      mSave.onclick=()=>{ upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
     else if(param==='weight'){
-      const inp = document.createElement('input'); inp.type='number'; inp.step=0.1; inp.value=(entry.weight??'');
+      const inp=document.createElement('input'); inp.type='number'; inp.step=0.1; inp.value=(entry.weight??'');
       mBody.append('Poids en kg : ', inp);
-      mSave.onclick = ()=>{ const v=parseFloat(inp.value); entry.weight = isNaN(v)? null : v; upsertEntry(dateKey, entry); closeAndRefresh(); };
+      mSave.onclick=()=>{ const v=parseFloat(inp.value); entry.weight=isNaN(v)? null:v; upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
     else if(param==='sleep'){
-      entry.sleep = Object.assign({ bedTime:'', wakeTime:'', duration:0, quality:0, dreams:[] }, entry.sleep||{});
+      entry.sleep=Object.assign({bedTime:'',wakeTime:'',duration:0,quality:0,dreams:[]}, entry.sleep||{});
       const wake=document.createElement('input'); wake.type='time'; wake.value=entry.sleep.wakeTime||'';
       const bed=document.createElement('input'); bed.type='time'; bed.value=entry.sleep.bedTime||'';
       const durEl=document.createElement('div'); durEl.style.marginTop='6px'; durEl.style.fontSize='13px'; durEl.style.color='var(--muted)';
 
       const qLabel=document.createElement('div'); qLabel.textContent='Qualité du sommeil';
-      const qDiscs=buildDiscs(entry.sleep.quality||0, 10);
+      const qDiscs=buildDiscs(entry.sleep.quality||0,10);
       const ctrl=document.createElement('div'); ctrl.className='inlineControls';
-      const minus=document.createElement('button'); minus.className='ctrlBtn'; minus.textContent='–';
-      const plus=document.createElement('button'); plus.className='ctrlBtn'; plus.textContent='+';
+      const minus=document.createElement('button'); minus.className='btn'; minus.textContent='–';
+      const plus=document.createElement('button'); plus.className='btn'; plus.textContent='+';
       minus.onclick=()=>{ qDiscs.value=Math.max(0,(qDiscs.value||0)-0.5); qDiscs.update(); entry.sleep.quality=qDiscs.value; };
       plus.onclick =()=>{ qDiscs.value=Math.min(10,(qDiscs.value||0)+0.5); qDiscs.update(); entry.sleep.quality=qDiscs.value; };
-      qDiscs.onchange=(v)=>{ entry.sleep.quality=v; };
+      qDiscs.onchange=(v)=> entry.sleep.quality=v;
 
       function calcDur(b,w){
         if(!b||!w) return 0;
@@ -435,19 +418,13 @@ function openModal(param, dateKey){
         if(wd<=bd) wd.setDate(wd.getDate()+1);
         return Math.round(((wd-bd)/3600000)*10)/10;
       }
-      function refresh(){
-        const d = calcDur(bed.value, wake.value);
-        durEl.textContent='Durée totale : '+d+' h';
-        entry.sleep.duration=d;
-      }
-      [wake,bed].forEach(x=> x.addEventListener('input', refresh));
-      refresh();
+      function refresh(){ const d=calcDur(bed.value,wake.value); durEl.textContent='Durée totale : '+d+' h'; entry.sleep.duration=d; }
+      [wake,bed].forEach(x=> x.addEventListener('input', refresh)); refresh();
 
       const row1=document.createElement('div'); row1.style.marginBottom='6px'; row1.append('Heure du lever (HH:MM) : ', wake);
       const row2=document.createElement('div'); row2.style.marginBottom='6px'; row2.append('Heure du coucher (HH:MM) : ', bed);
-
       mBody.append(row1,row2,durEl,qLabel,ctrl,qDiscs);
-      mSave.onclick = ()=>{ entry.sleep.bedTime=bed.value; entry.sleep.wakeTime=wake.value; upsertEntry(dateKey, entry); closeAndRefresh(); };
+      mSave.onclick=()=>{ entry.sleep.bedTime=bed.value; entry.sleep.wakeTime=wake.value; upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
     else if(param==='photo'){
       const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
@@ -458,38 +435,23 @@ function openModal(param, dateKey){
         const f=e.target.files[0]; if(!f) return;
         const reader=new FileReader();
         reader.onload=(ev)=>{
-          entry.photos=entry.photos||[];
-          if(entry.photos.length>=4){ alert('Max 4 photos'); return; }
-          entry.photos.push(ev.target.result);
-          upsertEntry(dateKey, entry);
+          entry.photos=entry.photos||[]; if(entry.photos.length>=4){ alert('Max 4 photos'); return; }
+          entry.photos.push(ev.target.result); upsertEntry(dateKey,entry);
           const im=document.createElement('img'); im.src=ev.target.result; grid.appendChild(im);
         };
         reader.readAsDataURL(f);
       };
-      mSave.onclick = ()=>{ closeAndRefresh(); };
+      mSave.onclick=()=>{ closeAndRefresh(); };
     }
     else if(param==='food'){
-      const meals = [
-        ['Déjeuner', entry.food.breakfast],
-        ['Dîner',     entry.food.lunch],
-        ['Souper',    entry.food.dinner],
-        ['Collations',entry.food.snacks]
-      ];
-      const macros = [
-        ['Protéine','prot'],
-        ['Légume','veg'],
-        ['Glucide','carb'],
-        ['Lipide','fat']
-      ];
-
-      // conteneur pour mise à jour des totaux live
+      const meals=[ ['Déjeuner',entry.food.breakfast], ['Dîner',entry.food.lunch], ['Souper',entry.food.dinner], ['Collations',entry.food.snacks] ];
+      const macros=[ ['Protéine','prot'], ['Légume','veg'], ['Glucide','carb'], ['Lipide','fat'] ];
       const totalsBox=document.createElement('div'); totalsBox.className='totals';
 
       function updateTotalsUI(){
-        const p = loadProfile();
-        const sum = {prot:0,veg:0,carb:0,fat:0};
+        const p=loadProfile(); const sum={prot:0,veg:0,carb:0,fat:0};
         Object.values(entry.food).forEach(m=>{ sum.prot+=m.prot||0; sum.veg+=m.veg||0; sum.carb+=m.carb||0; sum.fat+=m.fat||0; });
-        totalsBox.innerHTML =
+        totalsBox.innerHTML=
           `<div><strong>Totaux du jour</strong></div>
            <div>Protéines : ${sum.prot.toFixed(1)} / ${(+p.tProt||0).toFixed(1)}</div>
            <div>Légumes : ${sum.veg.toFixed(1)} / ${(+p.tVeg||0).toFixed(1)}</div>
@@ -499,200 +461,145 @@ function openModal(param, dateKey){
       }
 
       meals.forEach(([name,obj])=>{
-        const det=document.createElement('details'); // fermé par défaut
-        const sum=document.createElement('summary'); sum.textContent=name;
-        det.appendChild(sum);
-
-        // Description
+        const det=document.createElement('details'); const sum=document.createElement('summary'); sum.textContent=name; det.append(sum);
         const descLabel=document.createElement('div'); descLabel.style.marginTop='6px'; descLabel.style.fontWeight='600'; descLabel.textContent='Description';
-        const desc=document.createElement('textarea'); desc.placeholder="Ex: Omelette, tomates, feta…"; desc.value=obj.desc||'';
-        desc.addEventListener('input', ()=>{ obj.desc=desc.value; });
-
-        det.append(descLabel, desc);
-
-        // 4 macros
+        const desc=document.createElement('textarea'); desc.placeholder="Ex: Omelette, tomates, feta…"; desc.value=obj.desc||''; desc.addEventListener('input', ()=> obj.desc=desc.value);
+        det.append(descLabel,desc);
         macros.forEach(([label,field])=>{
           const row=document.createElement('div'); row.className='mealRow';
           const lab=document.createElement('div'); lab.className='macroLabel'; lab.textContent=label;
-          const discs=buildDiscs(obj[field]||0, 6);
+          const discs=buildDiscs(obj[field]||0,6);
           const valUnder=document.createElement('div'); valUnder.className='valueUnder'; valUnder.textContent=(obj[field]||0).toFixed(1);
           discs.onchange=(val)=>{ obj[field]=val; valUnder.textContent=val.toFixed(1); updateTotalsUI(); };
-          row.append(lab, discs);
-          det.append(row, valUnder);
+          row.append(lab,discs); det.append(row,valUnder);
         });
-
-        mBody.appendChild(det);
+        mBody.append(det);
       });
 
-      // Verres d'eau
-      const detWater=document.createElement('details');
-      const sumWater=document.createElement('summary'); sumWater.textContent="Verres d’eau";
-      detWater.appendChild(sumWater);
+      const detWater=document.createElement('details'); const sumWater=document.createElement('summary'); sumWater.textContent="Verres d’eau"; detWater.append(sumWater);
       const wRow=document.createElement('div'); wRow.style.marginTop='8px';
-      const wInp=document.createElement('input'); wInp.type='number'; wInp.min='0'; wInp.value=entry.water||0;
-      wInp.addEventListener('input', ()=>{ /* live in box */ updateTotalsUI(); });
-      wRow.append('Nombre de verres dans la journée : ', wInp);
-      detWater.appendChild(wRow);
-      mBody.appendChild(detWater);
+      const wInp=document.createElement('input'); wInp.type='number'; wInp.min='0'; wInp.value=entry.water||0; wInp.addEventListener('input', updateTotalsUI);
+      wRow.append('Nombre de verres dans la journée : ', wInp); detWater.append(wRow); mBody.append(detWater);
 
-      // Totaux
-      updateTotalsUI();
-      mBody.appendChild(totalsBox);
-
-      mSave.onclick = ()=>{
-        entry.water = parseInt(wInp.value)||0;
-        upsertEntry(dateKey, entry);
-        closeAndRefresh();
-      };
+      updateTotalsUI(); mBody.append(totalsBox);
+      mSave.onclick=()=>{ entry.water=parseInt(wInp.value)||0; upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
 
-    mCancel.onclick = ()=>{ modal.classList.remove('show'); };
-  }catch(err){
-    alert('Erreur: '+err.message);
-  }
+    mCancel.onclick=()=> modal.classList.remove('show');
+  }catch(err){ alert('Erreur: '+err.message); }
+}
+function closeAndRefresh(){ modal.classList.remove('show'); preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); }); }
+
+/* ===== NAV ===== */
+const navCal=document.getElementById('navCal'), navProfile=document.getElementById('navProfile'), navStats=document.getElementById('navStats');
+function setActive(btn){ document.querySelectorAll('aside nav button').forEach(b=> b.classList.remove('active')); btn.classList.add('active'); }
+navCal.onclick=()=>{ setActive(navCal); showView('cal'); };
+navProfile.onclick=()=>{ setActive(navProfile); showView('profile'); };
+navStats.onclick=()=>{ setActive(navStats); showView('stats'); };
+
+const mobileBar=document.getElementById('mobileBar');
+const mCal=document.getElementById('mCal'), mProfile=document.getElementById('mProfile'), mStats=document.getElementById('mStats');
+function setActiveMobile(target){ [mCal,mProfile,mStats].forEach(b=> b.classList.remove('active')); target.classList.add('active'); }
+mCal.onclick=()=>{ setActiveMobile(mCal); showView('cal'); };
+mProfile.onclick=()=>{ setActiveMobile(mProfile); showView('profile'); };
+mStats.onclick=()=>{ setActiveMobile(mStats); showView('stats'); };
+
+function showView(which){
+  const vCal=document.getElementById('calView'), vProf=document.getElementById('profileView'), vStats=document.getElementById('statsView');
+  if(which==='cal'){ vCal.style.display='block'; vProf.style.display='none'; vStats.style.display='none'; document.getElementById('title').textContent='Calendrier'; }
+  if(which==='profile'){ vCal.style.display='none'; vProf.style.display='block'; vStats.style.display='none'; document.getElementById('title').textContent='Profil'; refreshProfileUI(); drawStepsChart(); drawWeightChart(); }
+  if(which==='stats'){ vCal.style.display='none'; vProf.style.display='none'; vStats.style.display='block'; document.getElementById('title').textContent='Stats'; }
+  // Sync sidebar buttons on desktop
+  if(which==='cal') setActive(navCal);
+  if(which==='profile') setActive(navProfile);
+  if(which==='stats') setActive(navStats);
 }
 
-/* ====== close + redraw (anti-saut) ====== */
-function closeAndRefresh(){
-  modal.classList.remove('show');
-  preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); });
-}
-
-/* ====== NAV ====== */
-document.getElementById('prev').onclick = ()=>{ if(pageIndex>0){ pageIndex--; preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); }); } };
-document.getElementById('next').onclick = ()=>{ pageIndex++; preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); }); };
-
-const navCal = document.getElementById('navCal');
-const navProfile = document.getElementById('navProfile');
-const navStats = document.getElementById('navStats');
-function setActive(btn){
-  document.querySelectorAll('aside nav button').forEach(b=> b.classList.remove('active'));
-  btn.classList.add('active');
-}
-navCal.onclick = ()=>{ setActive(navCal); document.getElementById('calView').style.display='block'; document.getElementById('profileView').style.display='none'; document.getElementById('statsView').style.display='none'; document.getElementById('title').textContent='Calendrier'; };
-navProfile.onclick = ()=>{ setActive(navProfile); document.getElementById('calView').style.display='none'; document.getElementById('profileView').style.display='block'; document.getElementById('statsView').style.display='none'; document.getElementById('title').textContent='Profil'; refreshProfileUI(); drawStepsChart(); drawWeightChart(); };
-navStats.onclick = ()=>{ setActive(navStats); document.getElementById('calView').style.display='none'; document.getElementById('profileView').style.display='none'; document.getElementById('statsView').style.display='block'; document.getElementById('title').textContent='Stats'; };
-
-/* ====== profil UI ====== */
+/* ===== profil UI ===== */
 function refreshProfileUI(){
-  const p = loadProfile();
-  document.getElementById('pName').value = p.name||'';
-  document.getElementById('pAge').value = p.age||0;
-  document.getElementById('pWeight').value = p.weight||0;
-  document.getElementById('pWeightT').value = p.weightTarget||0;
-  document.getElementById('tProt').value = p.tProt||0;
-  document.getElementById('tVeg').value = p.tVeg||0;
-  document.getElementById('tCarb').value = p.tCarb||0;
-  document.getElementById('tFat').value = p.tFat||0;
-  document.querySelectorAll('input[name="theme"]').forEach(r=> r.checked = (r.value=== (p.theme||'blue')));
-  const grid = document.getElementById('pPhotoGrid'); grid.innerHTML='';
-  (p.photos||[]).forEach(src=>{ const im=document.createElement('img'); im.src=src; grid.appendChild(im); });
+  const p=loadProfile();
+  pName.value=p.name||''; pAge.value=p.age||0; pWeight.value=p.weight||0; pWeightT.value=p.weightTarget||0;
+  tProt.value=p.tProt||0; tVeg.value=p.tVeg||0; tCarb.value=p.tCarb||0; tFat.value=p.tFat||0;
+  document.querySelectorAll('input[name="theme"]').forEach(r=> r.checked=(r.value===(p.theme||'blue')));
+  const g=document.getElementById('pPhotoGrid'); g.innerHTML=''; (p.photos||[]).forEach(src=>{ const im=document.createElement('img'); im.src=src; g.appendChild(im); });
 }
+const pName=document.getElementById('pName'), pAge=document.getElementById('pAge'), pWeight=document.getElementById('pWeight'), pWeightT=document.getElementById('pWeightT');
+const tProt=document.getElementById('tProt'), tVeg=document.getElementById('tVeg'), tCarb=document.getElementById('tCarb'), tFat=document.getElementById('tFat');
 
 document.getElementById('pPhotos').addEventListener('change', (e)=>{
-  const files = Array.from(e.target.files||[]);
-  const p = loadProfile(); p.photos = p.photos||[];
-  for(const f of files){
-    if(p.photos.length>=4) break;
+  const files=Array.from(e.target.files||[]); const p=loadProfile(); p.photos=p.photos||[];
+  for(const f of files){ if(p.photos.length>=4) break;
     const reader=new FileReader(); reader.onload=(ev)=>{ p.photos.push(ev.target.result); saveProfile(p); refreshProfileUI(); }; reader.readAsDataURL(f);
   }
 });
-
-document.getElementById('saveProfile').onclick = ()=>{
-  const p = loadProfile();
-  p.name = document.getElementById('pName').value;
-  p.age = parseInt(document.getElementById('pAge').value)||0;
-  p.weight = parseFloat(document.getElementById('pWeight').value)||0;
-  p.weightTarget = parseFloat(document.getElementById('pWeightT').value)||0;
-  p.tProt = parseFloat(document.getElementById('tProt').value)||0;
-  p.tVeg = parseFloat(document.getElementById('tVeg').value)||0;
-  p.tCarb = parseFloat(document.getElementById('tCarb').value)||0;
-  p.tFat = parseFloat(document.getElementById('tFat').value)||0;
-  const sel = Array.from(document.querySelectorAll('input[name="theme"]')).find(x=>x.checked)?.value || 'blue';
-  p.theme = sel;
-  saveProfile(p);
-  drawStepsChart(); drawWeightChart();
-  alert('Profil enregistré');
+document.getElementById('saveProfile').onclick=()=>{
+  const p=loadProfile();
+  p.name=pName.value; p.age=parseInt(pAge.value)||0; p.weight=parseFloat(pWeight.value)||0; p.weightTarget=parseFloat(pWeightT.value)||0;
+  p.tProt=parseFloat(tProt.value)||0; p.tVeg=parseFloat(tVeg.value)||0; p.tCarb=parseFloat(tCarb.value)||0; p.tFat=parseFloat(tFat.value)||0;
+  p.theme=(Array.from(document.querySelectorAll('input[name="theme"]')).find(x=>x.checked)?.value)||'blue';
+  saveProfile(p); drawStepsChart(); drawWeightChart(); alert('Profil enregistré');
 };
-
-document.getElementById('delAll').onclick = ()=>{
+document.getElementById('delAll').onclick=()=>{
   if(confirm('Supprimer profil + toutes les données ?')){
-    _safeSetItem(PF_KEY, null); _safeSetItem(DAY_KEY, null);
+    _safeSetItem(PF_KEY,null); _safeSetItem(DAY_KEY,null);
     try{ localStorage.removeItem(PF_KEY); localStorage.removeItem(DAY_KEY); }catch(e){}
     preserveScroll(()=>{ renderPage(); refreshProfileUI(); drawStepsChart(); drawWeightChart(); });
   }
 };
 
-/* ====== charts ====== */
+/* ===== charts ===== */
 function drawStepsChart(){
   const cvs=document.getElementById('stepsChart'); if(!cvs) return;
   const ctx=cvs.getContext('2d'); const W=cvs.width=cvs.clientWidth; const H=cvs.height=cvs.clientHeight;
   ctx.clearRect(0,0,W,H);
-  const daysObj=loadDaysObj();
-  const today=new Date(); const ys=[];
-  for(let i=29;i>=0;i--){
-    const d=addDays(today, -i); const k=dateKeyFromDate(d);
-    ys.push((daysObj[k]?.steps)||0);
-  }
+  const daysObj=loadDaysObj(); const today=new Date(); const ys=[];
+  for(let i=29;i>=0;i--){ const d=addDays(today,-i); const k=dateKeyFromDate(d); ys.push((daysObj[k]?.steps)||0); }
   const max=Math.max(10,...ys);
   ctx.strokeStyle='#ddd'; ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,H-30); ctx.lineTo(W-10,H-30); ctx.stroke();
-  ctx.beginPath();
-  ys.forEach((v,idx)=>{
-    const x=40 + (idx*(W-60)/29);
-    const y=(H-30) - (v/max)*(H-50);
-    if(idx===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
+  ctx.beginPath(); ys.forEach((v,i)=>{ const x=40 + (i*(W-60)/29); const y=(H-30) - (v/max)*(H-50); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
   ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(); ctx.lineWidth=2; ctx.stroke();
-  ys.forEach((v,idx)=>{
-    const x=40 + (idx*(W-60)/29);
-    const y=(H-30) - (v/max)*(H-50);
-    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill();
-  });
+  ys.forEach((v,i)=>{ const x=40 + (i*(W-60)/29); const y=(H-30) - (v/max)*(H-50); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); });
 }
-
 function drawWeightChart(){
   const cvs=document.getElementById('weightChart'); if(!cvs) return;
   const ctx=cvs.getContext('2d'); const W=cvs.width=cvs.clientWidth; const H=cvs.height=cvs.clientHeight;
   ctx.clearRect(0,0,W,H);
-  const daysObj=loadDaysObj();
-  const entries = Object.values(daysObj).filter(e=> e.weight!=null).sort((a,b)=> a.date.localeCompare(b.date));
-  if(entries.length===0){ ctx.fillStyle='#aaa'; ctx.fillText('Aucun poids enregistré', 20, 30); return; }
-  const ys=entries.map(e=>e.weight);
-  const min=Math.min(...ys), max=Math.max(...ys);
-  const pad= (max-min)*0.1 || 1;
-  const yMin=min-pad, yMax=max+pad;
+  const daysObj=loadDaysObj(); const entries=Object.values(daysObj).filter(e=> e.weight!=null).sort((a,b)=> a.date.localeCompare(b.date));
+  if(entries.length===0){ ctx.fillStyle='#aaa'; ctx.fillText('Aucun poids enregistré',20,30); return; }
+  const ys=entries.map(e=>e.weight); const min=Math.min(...ys), max=Math.max(...ys); const pad=(max-min)*0.1||1; const yMin=min-pad, yMax=max+pad;
   ctx.strokeStyle='#ddd'; ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,H-30); ctx.lineTo(W-10,H-30); ctx.stroke();
-  const xFor=(i)=> 40 + (i*(W-60)/(entries.length-1||1));
-  const yFor=(v)=> (H-30) - ((v-yMin)/(yMax-yMin))*(H-50);
-  ctx.beginPath();
-  entries.forEach((e,i)=>{ const x=xFor(i), y=yFor(e.weight); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+  const xFor=(i)=> 40 + (i*(W-60)/(entries.length-1||1)); const yFor=(v)=> (H-30) - ((v-yMin)/(yMax-yMin))*(H-50);
+  ctx.beginPath(); entries.forEach((e,i)=>{ const x=xFor(i), y=yFor(e.weight); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
   ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(); ctx.lineWidth=2; ctx.stroke();
   entries.forEach((e,i)=>{ const x=xFor(i), y=yFor(e.weight); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); });
 }
 
-/* ====== init ====== */
+/* ===== init + mobile bar detection ===== */
 (function init(){
   try{
     applyTheme(loadProfile().theme);
     refreshProfileUI();
     renderPage();
     drawStepsChart(); drawWeightChart();
+    // Afficher la barre mobile si petit écran
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      document.getElementById('mobileBar').style.display='flex';
+    }
   }catch(err){
     const box=document.createElement('div'); box.className='errorBox';
     box.textContent='Erreur d’initialisation : '+err.message;
     document.getElementById('calView').prepend(box);
   }
 })();
-
-  // Enregistre le service worker (nécessite HTTPS ou localhost)
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(console.error);
-    });
-  }
-
-
 </script>
 
+<!-- PWA: register service worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script>
 </body>
 </html>
