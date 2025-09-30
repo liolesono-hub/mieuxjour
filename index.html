@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>MieuxJour — V3.5r2 Responsive PWA</title>
+<title>MieuxJour — V3.5r3 Responsive PWA</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#6CC5B6">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -107,6 +107,15 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
 .totals{border-top:1px dashed #e6e6e6;padding-top:8px;margin-top:8px;font-size:13px;display:grid;gap:4px}
 .totals strong{font-weight:700}
 
+/* ===== Anti-zoom iPhone ===== */
+input, textarea, select, button { font-size:16px; } /* clé anti-zoom iOS */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select, button { font-size:16px; }
+}
+@media (max-width: 600px){
+  input, textarea { padding:10px; }
+}
+
 /* ===== mobile responsive ===== */
 @media (max-width: 900px){
   .grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:180px;min-width:0}
@@ -165,6 +174,7 @@ canvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px
       <div class="h-right">
         <button id="prev">◀</button>
         <button id="next">▶</button>
+        <button id="todayBtn">Aujourd’hui</button>
       </div>
     </div>
 
@@ -309,7 +319,7 @@ function getEntry(obj, key){
 }
 function preserveScroll(fn){ const y=calView.scrollTop; fn(); calView.scrollTop=y; }
 
-/* ===== rendu calendrier ====== */
+/* ===== rendu calendrier ===== */
 function renderPage(){
   try{
     grid.innerHTML=''; const today=new Date(); const startIdx=pageIndex*PAGE_SIZE;
@@ -378,7 +388,6 @@ function openModal(param,dateKey){
       const inp=document.createElement('input');
       inp.type='number'; inp.min=0; inp.value=entry.steps||0; inp.inputMode='numeric';
       mBody.append('Entrez le nombre de pas : ', inp);
-      // focus + select auto
       setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(_){} }, 0);
       mSave.onclick=()=>{ entry.steps=parseInt(inp.value)||0; upsertEntry(dateKey,entry); closeAndRefresh(); };
     }
@@ -485,7 +494,6 @@ function openModal(param,dateKey){
       const wRow=document.createElement('div'); wRow.style.marginTop='8px';
       const wInp=document.createElement('input'); wInp.type='number'; wInp.min='0'; wInp.value=entry.water||0; wInp.inputMode='numeric';
       wRow.append('Nombre de verres dans la journée : ', wInp); detWater.append(wRow); mBody.append(detWater);
-      // focus auto sur l'entrée eau quand on ouvre sa section
       sumWater.addEventListener('click', ()=> setTimeout(()=>{ try{ wInp.focus(); wInp.select(); }catch(_){} }, 0) );
 
       updateTotalsUI(); mBody.append(totalsBox);
@@ -495,17 +503,19 @@ function openModal(param,dateKey){
     mCancel.onclick=()=> modal.classList.remove('show');
   }catch(err){ alert('Erreur: '+err.message); }
 }
-
-/* ===== close + redraw ===== */
 function closeAndRefresh(){ modal.classList.remove('show'); preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); }); }
 
-/* ===== NAV (autorise passé & futur) ===== */
+/* ===== NAV (passé/futur + Today) ===== */
 document.getElementById('prev').onclick = ()=>{
-  pageIndex--; // plus de limite basse -> on peut aller dans le passé
+  pageIndex--;
   preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); });
 };
 document.getElementById('next').onclick = ()=>{
   pageIndex++;
+  preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); });
+};
+document.getElementById('todayBtn').onclick = ()=>{
+  pageIndex = 0;
   preserveScroll(()=>{ renderPage(); drawStepsChart(); drawWeightChart(); });
 };
 
