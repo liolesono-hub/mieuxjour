@@ -1,5 +1,5 @@
 // sw.js — cache-first avec retombée offline
-const CACHE_NAME = "mieuxjour-v2"; // bump pour forcer la mise à jour;
+const CACHE_NAME = "mieuxjour-v3"; // bump pour forcer la mise à jour;
 const ASSETS = [
   "./",
   "./index.html",
@@ -47,4 +47,5 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
